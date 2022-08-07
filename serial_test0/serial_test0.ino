@@ -21,7 +21,7 @@ void loop() {
   if (new_cmd_available()){
     read_cmd();
   }
-  int pwmVal = map(cmd_value,0, 1023, 1100, 1900); // maps potentiometer values to PWM value.
+  int pwmVal = map(cmd_value, 0, 1023, 1100, 1900); // maps potentiometer values to PWM value.
   
   servo.writeMicroseconds(pwmVal); // Send signal to ESC.
 }
