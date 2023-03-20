@@ -4,7 +4,7 @@ from .utilities.serial_driver import SerialDriver
 from time import time
 
 class MissionController:
-    def __init__(self, com_port = None, baud_rate = 9600, csv_file=None, calibration_file = None, debug_commands = False, serial_listen=False):
+    def __init__(self, com_port = None, baud_rate = 9600, csv_file=None, calibration_file = None, debug_commands = False, serial_listen=False, ack_wait_time = 8):
         self.start_time = time()
         self.serial = SerialDriver(port=com_port, baud_rate=baud_rate)
         self.serial_listen = serial_listen
@@ -13,6 +13,14 @@ class MissionController:
         self.commands = velocity_2_motor(MissionCSVReader(csv_file), calibration_df)
         self.next_velocity_command = self.get_next_command()
         self.end_of_mission = False
+
+        self.serial.write_serial('ACK')
+        while(not self.serial.new_message()):
+            if((time()-self.start_time)- ack_wait_time >=0):
+                self.serial.write_serial('ACK')
+                self.start_time = time()
+        self.start_time = time()
+
 
     def __repr__(self):
         return 'Dragonfly lure controller, running {} on com port {} with baud rate {}'.format(self.commands.csv_file, self.serial.port, self.serial.baud_rate)
